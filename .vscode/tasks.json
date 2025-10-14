@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Copy Resources",
+            "type": "shell",
+            "command": "cp -r src/main/resources/* out/ 2>/dev/null || mkdir -p out && cp -r src/main/resources/* out/",
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Build and Copy Resources",
+            "dependsOn": ["Copy Resources"],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

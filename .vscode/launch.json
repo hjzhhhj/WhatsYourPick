@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "com.whatsyourpick.Main",
+      "projectName": ""
+    },
+    {
+      "type": "java",
+      "name": "Launch What's Your Pick",
+      "request": "launch",
+      "mainClass": "com.whatsyourpick.Main",
+      "projectName": "whats-your-pick",
+      "cwd": "${workspaceFolder}",
+      "vmArgs": "-Dfile.encoding=UTF-8",
+      "preLaunchTask": "Copy Resources"
+    }
+  ]
+}

@@ -21,12 +21,14 @@ public class StartPanel extends JPanel {
     }
 
     private void loadBackgroundImage() {
-        try {
-            backgroundImage = ImageIO.read(getClass().getResourceAsStream("/images/start-background.jpg"));
+        try {            backgroundImage = ImageIO.read(getClass().getResourceAsStream("/images/start-background.png"));
         } catch (Exception e) {
-            // 배경 이미지가 없으면 null로 유지
+            // 배경 이미지가 없으면 null 처리
             backgroundImage = null;
             System.out.println("배경 이미지를 찾을 수 없습니다. 단색 배경을 사용합니다.");
+            if (e != null) {
+                System.err.println("상세 오류: " + e.getMessage());
+            }
         }
     }
 
@@ -53,15 +55,17 @@ public class StartPanel extends JPanel {
         JLabel titleLabel = new JLabel("Pick Me");
         titleLabel.setFont(FontManager.getPressStart2P(Font.BOLD, 64f));
         titleLabel.setForeground(PINK_COLOR); // #F17197
+        gbc.insets = new Insets(80, 0, 20, 0);
         gbc.gridy = 0;
         add(titleLabel, gbc);
 
         // 둥근 START 버튼
         startButton = new RoundedButton("START \u2192");
         startButton.setFont(FontManager.getPressStart2P(20f));
-        startButton.setPreferredSize(new Dimension(300, 70));
+        startButton.setPreferredSize(new Dimension(250, 70));
         startButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
+        gbc.insets = new Insets(40, 0, 20, 0);
         gbc.gridy = 1;
         add(startButton, gbc);
     }

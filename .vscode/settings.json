@@ -1,0 +1,13 @@
+{
+    "java.project.sourcePaths": [
+        "src/main/java"
+    ],
+    "java.project.resourceFilters": [
+        "node_modules",
+        ".git"
+    ],
+    "java.project.outputPath": "out",
+    "java.project.referencedLibraries": [],
+    "files.encoding": "utf8",
+    "java.configuration.updateBuildConfiguration": "automatic"
+}
