@@ -3,10 +3,8 @@ package com.whatsyourpick.ui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.geom.RoundRectangle2D;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 public class StartPanel extends JPanel {
 
@@ -59,7 +57,6 @@ public class StartPanel extends JPanel {
         gbc.gridy = 0;
         add(titleLabel, gbc);
 
-        // 둥근 START 버튼
         startButton = new RoundedButton("START \u2192");
         startButton.setFont(FontManager.getPressStart2P(20f));
         startButton.setPreferredSize(new Dimension(250, 70));
