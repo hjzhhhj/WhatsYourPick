@@ -21,6 +21,8 @@ public class CategoryPanel extends JPanel {
     private static final Color PINK_COLOR = new Color(241, 113, 151); // #F17197
     private static final Color HEADER_BG_COLOR = new Color(255, 209, 233); // #FFD1E9
 
+    private static final int CARD_SIZE = 250;
+
     public CategoryPanel() {
         setLayout(new BorderLayout());
         loadBackgroundImage();
@@ -84,7 +86,7 @@ public class CategoryPanel extends JPanel {
         centerContainer.setOpaque(false);
 
         // 카테고리 그리드
-        gridPanel = new JPanel(new GridLayout(3, 3, 20, 20));
+        gridPanel = new JPanel(new GridLayout(2, 4, 30, 30));
         gridPanel.setOpaque(false);
         gridPanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
 

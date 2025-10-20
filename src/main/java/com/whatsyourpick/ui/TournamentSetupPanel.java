@@ -142,14 +142,6 @@ public class TournamentSetupPanel extends JPanel {
         gbc.gridx = 0;
         gbc.insets = new Insets(10, 0, 10, 0);
 
-        // 타이틀
-        JLabel titleLabel = new JLabel("Select Tournament Size");
-        titleLabel.setFont(FontManager.getPressStart2P(Font.BOLD, 28f));
-        titleLabel.setForeground(new Color(75, 0, 130));
-        gbc.gridy = 0;
-        gbc.insets = new Insets(0, 0, 40, 0);
-        rightPanel.add(titleLabel, gbc);
-
         // 라운드 버튼들
         gbc.insets = new Insets(10, 0, 10, 0);
         int[] rounds = {4, 8, 16, 32, 64};
