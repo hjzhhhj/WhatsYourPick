@@ -146,13 +146,16 @@ public class CategoryPanel extends JPanel {
         card.add(imageLabel, BorderLayout.CENTER);
 
         // 카테고리 이름
-        JLabel nameLabel = new JLabel(category.getName(), SwingConstants.CENTER);
+        String displayText = String.format("<html><center>%s<br><font size='-2'>(%d개)</font></center></html>",
+                category.getName(), category.getContestantCount());
+        JLabel nameLabel = new JLabel(displayText, SwingConstants.CENTER);
         nameLabel.setFont(FontManager.getDungGeunMo(Font.BOLD, 18f));
         nameLabel.setForeground(PINK_COLOR); // #F17197
         nameLabel.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
         nameLabel.setOpaque(true);
         nameLabel.setBackground(Color.WHITE);
         card.add(nameLabel, BorderLayout.SOUTH);
+
 
         // 호버 효과 및 클릭 이벤트
         card.addMouseListener(new MouseAdapter() {

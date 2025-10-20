@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
+import java.io.File;
+import java.net.URL;
 
 /**
  * 대결 화면 패널
@@ -64,7 +66,7 @@ public class BattlePanel extends JPanel {
         // VS 텍스트
         JLabel vsLabel = new JLabel("VS");
         vsLabel.setFont(FontManager.getPressStart2P(Font.BOLD, 48f));
-        vsLabel.setForeground(new Color(220, 20, 60)); // 빨간색
+        vsLabel.setForeground(new Color(220, 20, 60));
         gbc.gridx = 1;
         gbc.insets = new Insets(20, 40, 20, 40);
         battlePanel.add(vsLabel, gbc);
@@ -158,33 +160,63 @@ public class BattlePanel extends JPanel {
 
         // 왼쪽 대상 설정
         leftNameLabel.setText(left.getName());
-        loadImage(leftImageLabel, left.getImagePath());
+        loadImage(leftImageLabel, left.getImagePath(), left.getName());
 
         // 오른쪽 대상 설정
         rightNameLabel.setText(right.getName());
-        loadImage(rightImageLabel, right.getImagePath());
+        loadImage(rightImageLabel, right.getImagePath(), right.getName());
+        
+        System.out.println("🥊 대결: " + left.getName() + " VS " + right.getName());
     }
 
     /**
      * 이미지를 로드합니다.
      */
-    private void loadImage(JLabel label, String imagePath) {
+    private void loadImage(JLabel label, String imagePath, String name) {
         try {
-            ImageIcon icon = new ImageIcon(getClass().getResource("/" + imagePath));
-            if (icon.getIconWidth() > 0) {
-                Image scaledImage = icon.getImage().getScaledInstance(350, 350, Image.SCALE_SMOOTH);
-                label.setIcon(new ImageIcon(scaledImage));
-                label.setText("");
+            // 경로 정리 (맨 앞의 / 제거)
+            String cleanPath = imagePath.startsWith("/") ? imagePath.substring(1) : imagePath;
+            
+            System.out.println("🖼️  이미지 로드 시도: " + cleanPath + " (이름: " + name + ")");
+            
+            // 리소스에서 이미지 로드 시도
+            URL imageUrl = getClass().getClassLoader().getResource(cleanPath);
+            
+            if (imageUrl != null) {
+                ImageIcon icon = new ImageIcon(imageUrl);
+                
+                if (icon.getIconWidth() > 0 && icon.getIconHeight() > 0) {
+                    // 이미지를 350x350 크기로 조정
+                    Image scaledImage = icon.getImage().getScaledInstance(
+                        350, 350, Image.SCALE_SMOOTH
+                    );
+                    label.setIcon(new ImageIcon(scaledImage));
+                    label.setText("");
+                    System.out.println("✅ 이미지 로드 성공: " + name);
+                } else {
+                    // 아이콘 크기가 0인 경우
+                    setImageNotFound(label, name, "아이콘 크기 0");
+                }
             } else {
-                label.setIcon(null);
-                label.setText("이미지 없음");
-                label.setFont(FontManager.getDungGeunMo(16f));
+                // URL이 null인 경우
+                setImageNotFound(label, name, "리소스를 찾을 수 없음: " + cleanPath);
             }
+            
         } catch (Exception e) {
-            label.setIcon(null);
-            label.setText("이미지 없음");
-            label.setFont(FontManager.getDungGeunMo(16f));
+            setImageNotFound(label, name, e.getMessage());
+            e.printStackTrace();
         }
+    }
+    
+    /**
+     * 이미지를 찾을 수 없을 때 표시
+     */
+    private void setImageNotFound(JLabel label, String name, String reason) {
+        label.setIcon(null);
+        label.setText("<html><center>이미지 없음<br><small>" + name + "</small></center></html>");
+        label.setFont(FontManager.getDungGeunMo(14f));
+        label.setForeground(new Color(150, 150, 150));
+        System.err.println("❌ 이미지 로드 실패: " + name + " - " + reason);
     }
 
     /**

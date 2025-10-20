@@ -1,7 +1,7 @@
 package com.whatsyourpick;
 
 import com.whatsyourpick.database.DatabaseManager;
-import com.whatsyourpick.database.DummyDataManager;
+import com.whatsyourpick.database.JdbcManager;
 import com.whatsyourpick.game.TournamentManager;
 import com.whatsyourpick.model.Category;
 import com.whatsyourpick.model.Contestant;
@@ -35,7 +35,8 @@ public class Main extends JFrame {
         FontManager.initialize();
 
         // 데이터베이스 매니저 초기화 (나중에 실제 DB로 교체)
-        databaseManager = new DummyDataManager();
+        databaseManager = new JdbcManager();
+        databaseManager.initialize();
 
         // 토너먼트 매니저 초기화
         tournamentManager = new TournamentManager();
@@ -49,6 +50,14 @@ public class Main extends JFrame {
         setSize(1200, 800);
         setLocationRelativeTo(null);
         setResizable(false);
+
+        // 프로그램 종료 시 DB 연결 해제
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                databaseManager.close();
+            }
+        });
     }
 
     private void initializeUI() {
@@ -125,7 +134,7 @@ public class Main extends JFrame {
         Category category = tournamentSetupPanel.getSelectedCategory();
 
         // 해당 카테고리의 후보자들을 가져옴
-        List<Contestant> contestants = databaseManager.getContestantsByCategory(category.getId());
+        List<Contestant> contestants = databaseManager.getContestantsByCategory(category.getName());
 
         // 토너먼트 초기화
         tournamentManager.initializeTournament(contestants, round);

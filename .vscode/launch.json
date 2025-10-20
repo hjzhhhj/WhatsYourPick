@@ -14,6 +14,10 @@
       "request": "launch",
       "mainClass": "com.whatsyourpick.Main",
       "projectName": "whats-your-pick",
+      "classPaths": [
+        "lib/mysql-connector-j-9.4.0.jar",
+        "${workspaceFolder}/lib/*"
+      ],
       "cwd": "${workspaceFolder}",
       "vmArgs": "-Dfile.encoding=UTF-8",
       "preLaunchTask": "Copy Resources"

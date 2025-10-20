@@ -8,6 +8,7 @@ public class Category {
     private Long id;
     private String name;
     private String imagePath;
+    private int contestantCount; // 카테고리별 후보자 수
 
     public Category() {
     }
@@ -41,6 +42,14 @@ public class Category {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public int getContestantCount() {
+        return contestantCount;
+    }
+
+    public void setContestantCount(int contestantCount) {
+        this.contestantCount = contestantCount;
     }
 
     @Override
