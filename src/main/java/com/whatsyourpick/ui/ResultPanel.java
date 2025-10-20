@@ -149,24 +149,48 @@ public class ResultPanel extends JPanel {
     /**
      * 이미지를 로드합니다.
      */
+// ResultPanel.java 파일
+// ...
+    /**
+     * 이미지를 로드합니다.
+     */
     private void loadImage(String imagePath) {
         try {
-            ImageIcon icon = new ImageIcon(getClass().getResource("/" + imagePath));
-            if (icon.getIconWidth() > 0) {
-                Image scaledImage = icon.getImage().getScaledInstance(400, 400, Image.SCALE_SMOOTH);
-                winnerImageLabel.setIcon(new ImageIcon(scaledImage));
-                winnerImageLabel.setText("");
+            // 1. DB 경로의 맨 앞 '/'를 제거하여 'images/...' 형태로 만듦
+            // (imagePath가 null이거나 비어있지 않은 경우에만 처리)
+            String cleanPath = (imagePath != null && imagePath.startsWith("/"))
+                    ? imagePath.substring(1)
+                    : imagePath;
+
+            // 2. 클래스패스 기준으로 로드하기 위해 다시 맨 앞에 '/'를 붙여 URL로 가져옴
+            // (DB 경로에 슬래시가 하나만 붙도록 보장)
+            java.net.URL imageUrl = getClass().getResource("/" + cleanPath);
+
+            if (imageUrl != null) {
+                ImageIcon icon = new ImageIcon(imageUrl);
+
+                if (icon.getIconWidth() > 0) {
+                    Image scaledImage = icon.getImage().getScaledInstance(400, 400, Image.SCALE_SMOOTH);
+                    winnerImageLabel.setIcon(new ImageIcon(scaledImage));
+                    winnerImageLabel.setText("");
+                } else {
+                    winnerImageLabel.setIcon(null);
+                    winnerImageLabel.setText("이미지 없음");
+                    winnerImageLabel.setFont(FontManager.getDungGeunMo(16f));
+                }
             } else {
+                // URL이 null인 경우
                 winnerImageLabel.setIcon(null);
-                winnerImageLabel.setText("이미지 없음");
+                winnerImageLabel.setText("이미지 경로 오류");
                 winnerImageLabel.setFont(FontManager.getDungGeunMo(16f));
             }
         } catch (Exception e) {
             winnerImageLabel.setIcon(null);
-            winnerImageLabel.setText("이미지 없음");
+            winnerImageLabel.setText("이미지 로드 오류");
             winnerImageLabel.setFont(FontManager.getDungGeunMo(16f));
         }
     }
+// ...
 
     /**
      * ANOTHER GAMES 버튼에 액션 리스너를 추가합니다.
