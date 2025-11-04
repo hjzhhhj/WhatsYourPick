@@ -22,8 +22,8 @@ public class TournamentSetupPanel extends JPanel {
     private JLabel categoryImageLabel;
     private JLabel categoryNameLabel;
     private Runnable backButtonListener; // 헤더 클릭 시 돌아가기 위한 리스너
-    private Map<Integer, JButton> roundButtons;
-    private JButton startButton;
+    private Map<Integer, RoundedButton> roundButtons;
+    private RoundedButton startButton;
     private int selectedRound = 0;
     private Category selectedCategory;
 
@@ -108,13 +108,13 @@ public class TournamentSetupPanel extends JPanel {
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setOpaque(false); // 배경 이미지가 보이도록 투명 설정
-        leftPanel.setBorder(BorderFactory.createEmptyBorder(50, 40, 50, 20));
+        leftPanel.setBorder(BorderFactory.createEmptyBorder(50, 120, 50, 20));
 
         // 카테고리 이미지
         categoryImageLabel = new JLabel("카테고리를 선택하세요"); // 초기 텍스트 설정
         categoryImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        categoryImageLabel.setPreferredSize(new Dimension(300, 300));
-        categoryImageLabel.setMaximumSize(new Dimension(300, 300));
+        categoryImageLabel.setPreferredSize(new Dimension(800, 800));
+        categoryImageLabel.setMaximumSize(new Dimension(1000, 1000));
         categoryImageLabel.setBackground(new Color(240, 240, 245));
         categoryImageLabel.setOpaque(true);
         categoryImageLabel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2));
@@ -147,21 +147,22 @@ public class TournamentSetupPanel extends JPanel {
         int[] rounds = {4, 8, 16, 32, 64};
         for (int i = 0; i < rounds.length; i++) {
             int round = rounds[i];
-            JButton roundButton = createRoundButton(round + "강", round);
+            RoundedButton roundButton = createRoundButton(round + " Round", round);
             roundButtons.put(round, roundButton);
             gbc.gridy = i + 1;
             rightPanel.add(roundButton, gbc);
         }
 
-        // START 버튼
-        startButton = new JButton("START \u2192");
-        startButton.setFont(FontManager.getPressStart2P(18f));
-        startButton.setPreferredSize(new Dimension(320, 60));
-        startButton.setBackground(new Color(150, 150, 150)); // 비활성화 색상
-        startButton.setForeground(Color.WHITE);
-        startButton.setFocusPainted(false);
-        startButton.setBorderPainted(false);
-        startButton.setEnabled(false);
+        // START 버튼 (배경색과 테두리 모두 #F17197, 텍스트는 흰색)
+        Color startBgColor = PINK_COLOR; // #F17197
+        Color startBorderColor = PINK_COLOR; // #F17197
+        Color startHoverColor = new Color(220, 90, 130); // 호버 시 약간 어두운 핑크
+        Color startTextColor = Color.WHITE;
+
+        startButton = new RoundedButton("START \u2192", startBgColor, startBorderColor, startHoverColor, startTextColor);
+        startButton.setFont(FontManager.getPressStart2P(20f));
+        startButton.setPreferredSize(new Dimension(400, 70));
+        startButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         gbc.gridy = rounds.length + 1;
         gbc.insets = new Insets(40, 0, 0, 0);
         rightPanel.add(startButton, gbc);
@@ -173,34 +174,14 @@ public class TournamentSetupPanel extends JPanel {
     /**
      * 라운드 버튼을 생성합니다.
      */
-    private JButton createRoundButton(String text, int round) {
-        JButton button = new JButton(text);
-        button.setFont(FontManager.getDungGeunMo(Font.BOLD, 22f));
-        button.setPreferredSize(new Dimension(320, 55));
-        button.setBackground(Color.WHITE);
-        button.setForeground(Color.BLACK);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2));
+    private RoundedButton createRoundButton(String text, int round) {
+        RoundedButton button = new RoundedButton(text);
+        button.setFont(FontManager.getPressStart2P(20f));
+        button.setPreferredSize(new Dimension(400, 70));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         button.addActionListener(e -> {
             selectRound(round);
-        });
-
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                if (selectedRound != round) {
-                    button.setBackground(new Color(240, 240, 250));
-                    button.setBorder(BorderFactory.createLineBorder(new Color(75, 0, 130), 2));
-                }
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                if (selectedRound != round) {
-                    button.setBackground(Color.WHITE);
-                    button.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2));
-                }
-            }
         });
 
         return button;
@@ -210,37 +191,11 @@ public class TournamentSetupPanel extends JPanel {
      * 라운드를 선택합니다.
      */
     private void selectRound(int round) {
-        // 이전 선택 해제
-        if (selectedRound > 0 && roundButtons.containsKey(selectedRound)) {
-            JButton prevButton = roundButtons.get(selectedRound);
-            prevButton.setBackground(Color.WHITE);
-            prevButton.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2));
-        }
-
-        // 새로운 선택
+        // 라운드 선택 저장
         selectedRound = round;
-        JButton currentButton = roundButtons.get(round);
-        currentButton.setBackground(new Color(75, 0, 130));
-        currentButton.setForeground(Color.WHITE);
-        currentButton.setBorder(BorderFactory.createLineBorder(new Color(75, 0, 130), 2));
 
         // START 버튼 활성화
         startButton.setEnabled(true);
-        startButton.setBackground(new Color(75, 0, 130));
-        startButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // START 버튼 호버 리스너는 선택 시 한 번만 등록하도록 처리 (중복 등록 방지)
-        if (startButton.getMouseListeners().length == 0) {
-            startButton.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    startButton.setBackground(new Color(100, 20, 160));
-                }
-
-                public void mouseExited(java.awt.event.MouseEvent evt) {
-                    startButton.setBackground(new Color(75, 0, 130));
-                }
-            });
-        }
     }
 
     /**
@@ -254,7 +209,7 @@ public class TournamentSetupPanel extends JPanel {
         try {
             ImageIcon icon = new ImageIcon(getClass().getResource("/" + category.getImagePath()));
             if (icon.getIconWidth() > 0) {
-                Image scaledImage = icon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+                Image scaledImage = icon.getImage().getScaledInstance(600, 600, Image.SCALE_SMOOTH);
                 categoryImageLabel.setIcon(new ImageIcon(scaledImage));
                 categoryImageLabel.setText("");
             } else {
@@ -303,23 +258,93 @@ public class TournamentSetupPanel extends JPanel {
         selectedRound = 0;
         selectedCategory = null;
         startButton.setEnabled(false);
-        startButton.setBackground(new Color(150, 150, 150));
-
-        // START 버튼의 마우스 리스너 제거 (비활성화 상태에서 호버 효과 방지)
-        for (java.awt.event.MouseListener listener : startButton.getMouseListeners()) {
-            startButton.removeMouseListener(listener);
-        }
-
-        for (JButton button : roundButtons.values()) {
-            button.setBackground(Color.WHITE);
-            button.setForeground(Color.BLACK);
-            button.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2));
-        }
 
         // 카테고리 정보 초기화
         categoryNameLabel.setText("");
         categoryImageLabel.setIcon(null);
         categoryImageLabel.setText("카테고리를 선택하세요");
         categoryImageLabel.setFont(FontManager.getDungGeunMo(16f));
+    }
+
+    /**
+     * 둥근 모서리 버튼 클래스
+     */
+    private static class RoundedButton extends JButton {
+        private static final Color DEFAULT_BUTTON_BG = new Color(255, 243, 253); // #FFF3FD
+        private static final Color DEFAULT_BORDER_COLOR = new Color(241, 113, 151); // #F17197
+        private static final Color DEFAULT_HOVER_COLOR = new Color(255, 230, 245); // 호버 시 약간 어두운 색
+        private static final int BORDER_WIDTH = 5;
+        private static final int ARC_WIDTH = 80; // 둥글기 정도
+
+        private Color buttonBg;
+        private Color borderColor;
+        private Color hoverColor;
+        private boolean isHovered = false;
+
+        // 기본 생성자 (라운드 버튼용)
+        public RoundedButton(String text) {
+            this(text, DEFAULT_BUTTON_BG, DEFAULT_BORDER_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_BORDER_COLOR);
+        }
+
+        // 색상 커스터마이징 생성자 (START 버튼용)
+        public RoundedButton(String text, Color buttonBg, Color borderColor, Color hoverColor, Color textColor) {
+            super(text);
+            this.buttonBg = buttonBg;
+            this.borderColor = borderColor;
+            this.hoverColor = hoverColor;
+
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setOpaque(false);
+            setForeground(textColor);
+
+            // 호버 효과
+            addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    isHovered = true;
+                    repaint();
+                }
+
+                public void mouseExited(java.awt.event.MouseEvent evt) {
+                    isHovered = false;
+                    repaint();
+                }
+            });
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int width = getWidth();
+            int height = getHeight();
+
+            // 배경 색상 (호버 시 변경)
+            if (isHovered) {
+                g2.setColor(hoverColor);
+            } else {
+                g2.setColor(buttonBg);
+            }
+            g2.fillRoundRect(0, 0, width - 1, height - 1, ARC_WIDTH, ARC_WIDTH);
+
+            // 테두리 (5px)
+            g2.setColor(borderColor);
+            g2.setStroke(new BasicStroke(BORDER_WIDTH));
+            g2.drawRoundRect(BORDER_WIDTH / 2, BORDER_WIDTH / 2,
+                           width - BORDER_WIDTH, height - BORDER_WIDTH,
+                           ARC_WIDTH, ARC_WIDTH);
+
+            g2.dispose();
+
+            // 텍스트 그리기
+            super.paintComponent(g);
+        }
+
+        @Override
+        protected void paintBorder(Graphics g) {
+            // 테두리는 paintComponent에서 그리므로 여기서는 아무것도 하지 않음
+        }
     }
 }

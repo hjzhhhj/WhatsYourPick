@@ -83,7 +83,7 @@ public class StartPanel extends JPanel {
         private static final Color BORDER_COLOR = new Color(241, 113, 151); // #F17197
         private static final Color HOVER_COLOR = new Color(255, 230, 245); // 호버 시 약간 어두운 색
         private static final int BORDER_WIDTH = 5;
-        private static final int ARC_WIDTH = 35; // 둥글기 정도
+        private static final int ARC_WIDTH = 80; // 둥글기 정도
         private boolean isHovered = false;
 
         public RoundedButton(String text) {
