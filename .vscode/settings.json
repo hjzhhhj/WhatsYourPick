@@ -1,8 +1,0 @@
-{
-  "java.project.sourcePaths": ["src/main/java"],
-  "java.project.resourceFilters": ["node_modules", ".git"],
-  "java.project.referencedLibraries": ["lib/mysql-connector-j-9.4.0.jar"],
-  "java.project.outputPath": "out",
-  "files.encoding": "utf8",
-  "java.configuration.updateBuildConfiguration": "automatic"
-}
