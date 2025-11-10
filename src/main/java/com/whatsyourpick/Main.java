@@ -121,7 +121,17 @@ public class Main extends JFrame {
      * 카테고리 선택 화면을 표시합니다.
      */
     private void showCategoryScreen() {
-        List<Category> categories = databaseManager.getAllCategories();
+        // 8개의 카테고리 직접 생성
+        List<Category> categories = new java.util.ArrayList<>();
+        categories.add(new Category(1L, "남자아이돌", "images/남자아이돌_표지.png"));
+        categories.add(new Category(2L, "여자아이돌", "images/여자아이돌_표지.png"));
+        categories.add(new Category(3L, "남자배우", "images/남자배우_표지.png"));
+        categories.add(new Category(4L, "여자배우", "images/여자배우_표지.png"));
+        categories.add(new Category(5L, "드라마", "images/드라마_표지.png"));
+        categories.add(new Category(6L, "애니메이션", "images/애니메이션_표지.png"));
+        categories.add(new Category(7L, "음식", "images/음식_표지.png"));
+        categories.add(new Category(8L, "여행지", "images/여행지_표지.png"));
+
         categoryPanel.displayCategories(categories);
         cardLayout.show(mainPanel, "CATEGORY");
     }
