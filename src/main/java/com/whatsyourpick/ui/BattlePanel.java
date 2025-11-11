@@ -110,11 +110,11 @@ public class BattlePanel extends JPanel {
 
         roundInfoLabel = new JLabel("");
         roundInfoLabel.setFont(FontManager.getDungGeunMo(Font.BOLD, 28f));
-        roundInfoLabel.setForeground(new Color(75, 0, 130));
+        roundInfoLabel.setForeground(PINK_COLOR); // #F17197
 
         matchCountLabel = new JLabel("");
         matchCountLabel.setFont(FontManager.getDungGeunMo(Font.BOLD, 22f));
-        matchCountLabel.setForeground(new Color(100, 100, 100));
+        matchCountLabel.setForeground(PINK_COLOR); // #F17197
 
         topInfoPanel.add(roundInfoLabel);
         topInfoPanel.add(matchCountLabel);
@@ -140,7 +140,7 @@ public class BattlePanel extends JPanel {
         // VS 텍스트
         JLabel vsLabel = new JLabel("VS");
         vsLabel.setFont(FontManager.getPressStart2P(Font.BOLD, 48f));
-        vsLabel.setForeground(new Color(220, 20, 60));
+        vsLabel.setForeground(PINK_COLOR); // #F17197
         gbc.gridx = 1;
         gbc.insets = new Insets(20, 40, 20, 40);
         battlePanel.add(vsLabel, gbc);
@@ -166,51 +166,34 @@ public class BattlePanel extends JPanel {
     private JPanel createContestantPanel(boolean isLeft) {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-        panel.setPreferredSize(new Dimension(350, 450));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 3));
+        panel.setPreferredSize(new Dimension(500, 560));
+        panel.setOpaque(false); // 배경 투명
+        panel.setBorder(null); // 테두리 제거
         panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // 이미지 레이블
-        JLabel imageLabel = new JLabel();
+        // 이미지 레이블 (둥근 모서리)
+        RoundedImageLabel imageLabel = new RoundedImageLabel(20);
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         imageLabel.setVerticalAlignment(SwingConstants.CENTER);
-        imageLabel.setPreferredSize(new Dimension(350, 350));
-        imageLabel.setBackground(new Color(240, 240, 245));
-        imageLabel.setOpaque(true);
+        imageLabel.setPreferredSize(new Dimension(500, 480));
+        imageLabel.setOpaque(false); // 배경 투명
         panel.add(imageLabel, BorderLayout.CENTER);
 
         // 이름 레이블
         JLabel nameLabel = new JLabel("", SwingConstants.CENTER);
         nameLabel.setFont(FontManager.getDungGeunMo(Font.BOLD, 20f));
+        nameLabel.setForeground(PINK_COLOR); // #F17197
         nameLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
-        nameLabel.setOpaque(true);
-        nameLabel.setBackground(Color.WHITE);
+        nameLabel.setOpaque(false); // 배경 투명
         panel.add(nameLabel, BorderLayout.SOUTH);
 
-        // 호버 효과
+        // 클릭 이벤트
         panel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                panel.setBackground(new Color(240, 240, 255));
-                nameLabel.setBackground(new Color(240, 240, 255));
-                panel.setBorder(BorderFactory.createLineBorder(new Color(75, 0, 130), 4));
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                panel.setBackground(Color.WHITE);
-                nameLabel.setBackground(Color.WHITE);
-                panel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 3));
-            }
-
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (winnerSelectListener != null) {
                     Contestant winner = isLeft ? leftContestant : rightContestant;
                     if (winner != null) {
-                        // 선택된 패널에 클릭 효과를 주기 위해 리스너 호출 전에 잠시 색상을 변경할 수도 있음
-                        panel.setBorder(BorderFactory.createLineBorder(new Color(220, 20, 60), 6));
                         winnerSelectListener.accept(winner);
                     }
                 }
@@ -249,27 +232,11 @@ public class BattlePanel extends JPanel {
         loadImage(rightImageLabel, right.getImagePath(), right.getName());
 
         System.out.println("🥊 대결: " + left.getName() + " VS " + right.getName());
-
-        // 이전 매치에서 선택 효과가 남아있을 경우 초기화 (호버 효과 복구)
-        resetContestantPanelStyles();
-    }
-
-    /**
-     * 대결 패널의 테두리 스타일을 초기 상태로 되돌립니다.
-     */
-    private void resetContestantPanelStyles() {
-        leftContestantPanel.setBackground(Color.WHITE);
-        leftNameLabel.setBackground(Color.WHITE);
-        leftContestantPanel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 3));
-
-        rightContestantPanel.setBackground(Color.WHITE);
-        rightNameLabel.setBackground(Color.WHITE);
-        rightContestantPanel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 3));
     }
 
 
     /**
-     * 이미지를 로드합니다.
+     * 이미지를 로드하고 663x635로 크롭합니다.
      */
     private void loadImage(JLabel label, String imagePath, String name) {
         try {
@@ -282,22 +249,46 @@ public class BattlePanel extends JPanel {
             URL imageUrl = getClass().getClassLoader().getResource(cleanPath);
 
             if (imageUrl != null) {
-                ImageIcon icon = new ImageIcon(imageUrl);
+                BufferedImage originalImg = ImageIO.read(imageUrl);
 
-                if (icon.getIconWidth() > 0 && icon.getIconHeight() > 0) {
-                    // 이미지를 350x350 크기로 조정
-                    Image scaledImage = icon.getImage().getScaledInstance(
-                            350, 350, Image.SCALE_SMOOTH
-                    );
+                if (originalImg != null && originalImg.getWidth() > 0 && originalImg.getHeight() > 0) {
+                    // 타겟 크기
+                    int targetWidth = 500;
+                    int targetHeight = 480;
+
+                    // 원본 이미지의 비율 계산
+                    double imgRatio = (double) originalImg.getWidth() / originalImg.getHeight();
+                    double targetRatio = (double) targetWidth / targetHeight;
+
+                    int cropWidth, cropHeight;
+
+                    // 이미지를 크롭할 크기 결정 (중앙에서 잘라내기)
+                    if (imgRatio > targetRatio) {
+                        // 이미지가 더 넓음 - 높이를 기준으로 폭을 자름
+                        cropHeight = originalImg.getHeight();
+                        cropWidth = (int) (cropHeight * targetRatio);
+                    } else {
+                        // 이미지가 더 높음 - 폭을 기준으로 높이를 자름
+                        cropWidth = originalImg.getWidth();
+                        cropHeight = (int) (cropWidth / targetRatio);
+                    }
+
+                    // 중앙에서 크롭
+                    int x = (originalImg.getWidth() - cropWidth) / 2;
+                    int y = (originalImg.getHeight() - cropHeight) / 2;
+
+                    BufferedImage croppedImg = originalImg.getSubimage(x, y, cropWidth, cropHeight);
+
+                    // 타겟 크기로 스케일링
+                    Image scaledImage = croppedImg.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+
                     label.setIcon(new ImageIcon(scaledImage));
                     label.setText("");
                     System.out.println("✅ 이미지 로드 성공: " + name);
                 } else {
-                    // 아이콘 크기가 0인 경우
-                    setImageNotFound(label, name, "아이콘 크기 0");
+                    setImageNotFound(label, name, "이미지 크기 0");
                 }
             } else {
-                // URL이 null인 경우
                 setImageNotFound(label, name, "리소스를 찾을 수 없음: " + cleanPath);
             }
 
@@ -331,5 +322,38 @@ public class BattlePanel extends JPanel {
      */
     public void setBackButtonListener(Runnable listener) {
         this.backButtonListener = listener;
+    }
+
+    /**
+     * 둥근 모서리를 가진 이미지 레이블
+     */
+    private static class RoundedImageLabel extends JLabel {
+        private int cornerRadius;
+
+        public RoundedImageLabel(int cornerRadius) {
+            this.cornerRadius = cornerRadius;
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // 아이콘이 있을 경우 둥근 모서리로 클리핑
+            if (getIcon() != null && getIcon() instanceof ImageIcon) {
+                ImageIcon icon = (ImageIcon) getIcon();
+                Image img = icon.getImage();
+
+                // 둥근 사각형으로 클리핑
+                g2.setClip(new java.awt.geom.RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius));
+                g2.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+            } else {
+                // 아이콘이 없을 경우 기본 텍스트 표시
+                super.paintComponent(g);
+            }
+
+            g2.dispose();
+        }
     }
 }
