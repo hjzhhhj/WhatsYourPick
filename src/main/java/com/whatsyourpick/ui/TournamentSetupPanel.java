@@ -4,6 +4,7 @@ import com.whatsyourpick.model.Category;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -75,28 +76,39 @@ public class TournamentSetupPanel extends JPanel {
 
     private void initComponents() {
 
-        // 1. 상단 헤더 패널 (♥️ Pick Me) - CategoryPanel과 동일하게 추가
+        // 1. 상단 헤더 패널 (♥️ Pick Me + 뒤로가기 버튼)
         JPanel headerPanel = new JPanel();
-        headerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 20));
+        headerPanel.setLayout(new BorderLayout());
         headerPanel.setBackground(HEADER_BG_COLOR);
         headerPanel.setBorder(new MatteBorder(0, 0, 3, 0, PINK_COLOR));
         headerPanel.setOpaque(true);
-        headerPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
+        // 뒤로가기 버튼 (좌측)
+        JButton backButton = new JButton("<- Back");
+        backButton.setFont(FontManager.getDungGeunMo(Font.BOLD, 18f));
+        backButton.setForeground(PINK_COLOR);
+        backButton.setBackground(HEADER_BG_COLOR);
+        backButton.setBorderPainted(false);
+        backButton.setFocusPainted(false);
+        backButton.setContentAreaFilled(false);
+        backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        backButton.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 20));
+        backButton.addActionListener(e -> {
+            if (backButtonListener != null) {
+                backButtonListener.run();
+            }
+        });
+
+        // 타이틀 (중앙)
+        JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 20));
+        centerPanel.setOpaque(false);
         JLabel headerLabel = new JLabel("\u2665\ufe0f  Pick Me");
         headerLabel.setFont(FontManager.getPressStart2P(Font.BOLD, 32f));
         headerLabel.setForeground(PINK_COLOR);
-        headerPanel.add(headerLabel);
+        centerPanel.add(headerLabel);
 
-        // 헤더 클릭 이벤트 (CategoryPanel과 동일하게 추가)
-        headerPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (backButtonListener != null) {
-                    backButtonListener.run();
-                }
-            }
-        });
+        headerPanel.add(backButton, BorderLayout.WEST);
+        headerPanel.add(centerPanel, BorderLayout.CENTER);
 
         add(headerPanel, BorderLayout.NORTH);
 
@@ -108,28 +120,23 @@ public class TournamentSetupPanel extends JPanel {
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setOpaque(false); // 배경 이미지가 보이도록 투명 설정
-        leftPanel.setBorder(BorderFactory.createEmptyBorder(50, 120, 50, 20));
+        leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 40, 10, 10));
 
         // 카테고리 이미지
         categoryImageLabel = new JLabel("카테고리를 선택하세요"); // 초기 텍스트 설정
         categoryImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        categoryImageLabel.setPreferredSize(new Dimension(800, 800));
-        categoryImageLabel.setMaximumSize(new Dimension(1000, 1000));
+        categoryImageLabel.setVerticalAlignment(SwingConstants.CENTER);
+        categoryImageLabel.setPreferredSize(new Dimension(560, 537));
+        categoryImageLabel.setMinimumSize(new Dimension(560, 537));
+        categoryImageLabel.setMaximumSize(new Dimension(560, 537));
         categoryImageLabel.setBackground(new Color(240, 240, 245));
         categoryImageLabel.setOpaque(true);
-        categoryImageLabel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2));
-        categoryImageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         categoryImageLabel.setFont(FontManager.getDungGeunMo(16f)); // 폰트 설정
 
-        // 카테고리 이름
-        categoryNameLabel = new JLabel("");
-        categoryNameLabel.setFont(FontManager.getDungGeunMo(Font.BOLD, 24f));
-        categoryNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        categoryNameLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
-        categoryNameLabel.setOpaque(false); // 투명 설정
-
+        // 세로 가운데 정렬을 위해 상하 glue 추가
+        leftPanel.add(Box.createVerticalGlue());
         leftPanel.add(categoryImageLabel);
-        leftPanel.add(categoryNameLabel);
+        leftPanel.add(Box.createVerticalGlue());
 
         centerContainer.add(leftPanel);
 
@@ -191,8 +198,20 @@ public class TournamentSetupPanel extends JPanel {
      * 라운드를 선택합니다.
      */
     private void selectRound(int round) {
+        // 이전 선택된 버튼을 기본 색상으로 복원
+        if (selectedRound > 0 && roundButtons.containsKey(selectedRound)) {
+            RoundedButton prevButton = roundButtons.get(selectedRound);
+            prevButton.setSelected(false);
+        }
+
         // 라운드 선택 저장
         selectedRound = round;
+
+        // 현재 선택된 버튼을 선택 색상으로 변경
+        if (roundButtons.containsKey(round)) {
+            RoundedButton currButton = roundButtons.get(round);
+            currButton.setSelected(true);
+        }
 
         // START 버튼 활성화
         startButton.setEnabled(true);
@@ -203,13 +222,13 @@ public class TournamentSetupPanel extends JPanel {
      */
     public void setSelectedCategory(Category category) {
         this.selectedCategory = category;
-        categoryNameLabel.setText(category.getName());
 
         // 이미지 로드 시도
         try {
-            ImageIcon icon = new ImageIcon(getClass().getResource("/" + category.getImagePath()));
-            if (icon.getIconWidth() > 0) {
-                Image scaledImage = icon.getImage().getScaledInstance(600, 600, Image.SCALE_SMOOTH);
+            BufferedImage img = ImageIO.read(getClass().getResourceAsStream("/" + category.getImagePath()));
+            if (img != null) {
+                // 이미지를 560x537로 스케일링 (레이블 크기에 맞춤)
+                Image scaledImage = img.getScaledInstance(560, 537, Image.SCALE_SMOOTH);
                 categoryImageLabel.setIcon(new ImageIcon(scaledImage));
                 categoryImageLabel.setText("");
             } else {
@@ -260,7 +279,6 @@ public class TournamentSetupPanel extends JPanel {
         startButton.setEnabled(false);
 
         // 카테고리 정보 초기화
-        categoryNameLabel.setText("");
         categoryImageLabel.setIcon(null);
         categoryImageLabel.setText("카테고리를 선택하세요");
         categoryImageLabel.setFont(FontManager.getDungGeunMo(16f));
@@ -273,13 +291,18 @@ public class TournamentSetupPanel extends JPanel {
         private static final Color DEFAULT_BUTTON_BG = new Color(255, 243, 253); // #FFF3FD
         private static final Color DEFAULT_BORDER_COLOR = new Color(241, 113, 151); // #F17197
         private static final Color DEFAULT_HOVER_COLOR = new Color(255, 230, 245); // 호버 시 약간 어두운 색
+        private static final Color SELECTED_BG_COLOR = new Color(255, 200, 220); // 연한 핑크 배경
+        private static final Color SELECTED_TEXT_COLOR = new Color(241, 113, 151); // 선택 시 핑크 텍스트
         private static final int BORDER_WIDTH = 5;
         private static final int ARC_WIDTH = 80; // 둥글기 정도
 
         private Color buttonBg;
+        private Color defaultButtonBg;
         private Color borderColor;
         private Color hoverColor;
+        private Color defaultTextColor;
         private boolean isHovered = false;
+        private boolean isSelected = false;
 
         // 기본 생성자 (라운드 버튼용)
         public RoundedButton(String text) {
@@ -290,8 +313,10 @@ public class TournamentSetupPanel extends JPanel {
         public RoundedButton(String text, Color buttonBg, Color borderColor, Color hoverColor, Color textColor) {
             super(text);
             this.buttonBg = buttonBg;
+            this.defaultButtonBg = buttonBg;
             this.borderColor = borderColor;
             this.hoverColor = hoverColor;
+            this.defaultTextColor = textColor;
 
             setContentAreaFilled(false);
             setFocusPainted(false);
@@ -313,6 +338,18 @@ public class TournamentSetupPanel extends JPanel {
             });
         }
 
+        public void setSelected(boolean selected) {
+            this.isSelected = selected;
+            if (selected) {
+                this.buttonBg = SELECTED_BG_COLOR;
+                setForeground(SELECTED_TEXT_COLOR);
+            } else {
+                this.buttonBg = defaultButtonBg;
+                setForeground(defaultTextColor);
+            }
+            repaint();
+        }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -321,8 +358,10 @@ public class TournamentSetupPanel extends JPanel {
             int width = getWidth();
             int height = getHeight();
 
-            // 배경 색상 (호버 시 변경)
-            if (isHovered) {
+            // 배경 색상 (선택/호버 상태에 따라 변경)
+            if (isSelected) {
+                g2.setColor(SELECTED_BG_COLOR);
+            } else if (isHovered) {
                 g2.setColor(hoverColor);
             } else {
                 g2.setColor(buttonBg);

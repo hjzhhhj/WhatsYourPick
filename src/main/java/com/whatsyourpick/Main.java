@@ -96,6 +96,9 @@ public class Main extends JFrame {
             cardLayout.show(mainPanel, "SETUP");
         });
 
+        // 토너먼트 설정 화면 뒤로가기 버튼
+        tournamentSetupPanel.setBackButtonListener(() -> showCategoryScreen());
+
         // 토너먼트 시작 리스너
         tournamentSetupPanel.addStartButtonListener(e -> startTournament());
 
