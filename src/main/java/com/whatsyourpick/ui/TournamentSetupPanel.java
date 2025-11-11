@@ -120,7 +120,7 @@ public class TournamentSetupPanel extends JPanel {
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setOpaque(false); // 배경 이미지가 보이도록 투명 설정
-        leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 40, 10, 10));
+        leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 80, 10, 10));
 
         // 카테고리 이미지
         categoryImageLabel = new JLabel("카테고리를 선택하세요"); // 초기 텍스트 설정
