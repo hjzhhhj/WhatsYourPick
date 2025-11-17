@@ -143,7 +143,7 @@ public class ResultPanel extends JPanel {
 
         // 라운드 설정
         ((RoundedLabel) winnerImageLabel).setCornerRadius(40);
-        ((RoundedLabel) winnerImageLabel).setBorderThickness(5);
+        ((RoundedLabel) winnerImageLabel).setBorderThickness(0);
 
         winnerImageLabel.setText("우승자 이미지");
 

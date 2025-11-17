@@ -120,9 +120,7 @@ public class Main extends JFrame {
         resultPanel.addRestartListener(e -> restartTournament());
     }
 
-    /**
-     * 카테고리 선택 화면을 표시합니다.
-     */
+    // 카테고리 선택 화면을 표시합니다.
     private void showCategoryScreen() {
         // 8개의 카테고리 직접 생성
         List<Category> categories = new java.util.ArrayList<>();
@@ -139,9 +137,7 @@ public class Main extends JFrame {
         cardLayout.show(mainPanel, "CATEGORY");
     }
 
-    /**
-     * 토너먼트를 시작합니다.
-     */
+    // 토너먼트 시작
     private void startTournament() {
         int round = tournamentSetupPanel.getSelectedRound();
         Category category = tournamentSetupPanel.getSelectedCategory();
@@ -156,9 +152,7 @@ public class Main extends JFrame {
         showNextBattle();
     }
 
-    /**
-     * 다음 대결 화면을 표시합니다.
-     */
+    // 다음 대결화면 표시
     private void showNextBattle() {
         Contestant left = tournamentManager.getLeftContestant();
         Contestant right = tournamentManager.getRightContestant();
@@ -169,9 +163,7 @@ public class Main extends JFrame {
         cardLayout.show(mainPanel, "BATTLE");
     }
 
-    /**
-     * 결과 화면을 표시합니다.
-     */
+    // 결과화면 표시
     private void showResult() {
         Contestant winner = tournamentManager.getWinner();
         resultPanel.setWinner(winner, selectedCategory.getName());
