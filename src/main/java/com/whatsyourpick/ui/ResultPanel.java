@@ -1,16 +1,36 @@
 package com.whatsyourpick.ui;
 
-import com.whatsyourpick.model.Contestant;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.border.MatteBorder;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.net.URL;
+
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.MatteBorder;
+
+import com.whatsyourpick.model.Contestant;
 
 /**
  * 결과 화면 패널
@@ -85,7 +105,7 @@ public class ResultPanel extends JPanel {
         headerLabel.setForeground(PINK_COLOR);
         headerPanel.add(headerLabel);
 
-        // 헤더 클릭 이벤트 (뒤로가기 기능)
+// 헤더 클릭 이벤트
         headerPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -112,16 +132,20 @@ public class ResultPanel extends JPanel {
         leftPanel.setOpaque(false); // 투명 설정
 
         // 우승자 이미지
-        winnerImageLabel = new JLabel();
+        winnerImageLabel = new RoundedLabel();
         winnerImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         winnerImageLabel.setVerticalAlignment(SwingConstants.CENTER);
-        winnerImageLabel.setPreferredSize(new Dimension(400, 400));
-        winnerImageLabel.setMaximumSize(new Dimension(400, 400));
+        winnerImageLabel.setPreferredSize(new Dimension(500, 480));
+        winnerImageLabel.setMaximumSize(new Dimension(500, 480));
         winnerImageLabel.setBackground(new Color(240, 240, 245));
-        winnerImageLabel.setOpaque(true);
-        winnerImageLabel.setBorder(BorderFactory.createLineBorder(new Color(255, 215, 0), 5)); // 금색 테두리
+        winnerImageLabel.setOpaque(false); // IMPORTANT: 직접 그리기 때문에 false
         winnerImageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        winnerImageLabel.setText("우승자 이미지"); // 초기 텍스트
+
+        // 라운드 설정
+        ((RoundedLabel) winnerImageLabel).setCornerRadius(40);
+        ((RoundedLabel) winnerImageLabel).setBorderThickness(5);
+
+        winnerImageLabel.setText("우승자 이미지");
 
         // 우승자 이름
         winnerNameLabel = new JLabel("");
@@ -131,7 +155,6 @@ public class ResultPanel extends JPanel {
         winnerNameLabel.setOpaque(false); // 투명 설정
 
         leftPanel.add(winnerImageLabel);
-        leftPanel.add(winnerNameLabel);
 
         gbc.gridx = 0;
         mainPanel.add(leftPanel, gbc);
@@ -147,28 +170,26 @@ public class ResultPanel extends JPanel {
         // 결과 텍스트
         resultTextLabel = new JLabel("");
         resultTextLabel.setFont(FontManager.getDungGeunMo(Font.BOLD, 24f));
-        resultTextLabel.setForeground(new Color(75, 0, 130));
+        resultTextLabel.setForeground(new Color(241, 113, 151));
         rightGbc.gridy = 0;
         rightGbc.insets = new Insets(0, 0, 50, 0);
         rightPanel.add(resultTextLabel, rightGbc); // gbc -> rightGbc 수정
 
         // ANOTHER GAMES 버튼
-        anotherGamesButton = new JButton("ANOTHER GAMES \u2192");
+        anotherGamesButton = new RoundedButton("ANOTHER GAMES \u2192", 60);
         anotherGamesButton.setFont(FontManager.getPressStart2P(16f));
         anotherGamesButton.setPreferredSize(new Dimension(380, 65));
-        anotherGamesButton.setBackground(new Color(75, 0, 130));
+        anotherGamesButton.setBackground(new Color(241, 113, 151));
         anotherGamesButton.setForeground(Color.WHITE);
-        anotherGamesButton.setFocusPainted(false);
-        anotherGamesButton.setBorderPainted(false);
         anotherGamesButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         anotherGamesButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                anotherGamesButton.setBackground(new Color(100, 20, 160));
+                anotherGamesButton.setBackground(new Color(241, 113, 151));
             }
 
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                anotherGamesButton.setBackground(new Color(75, 0, 130));
+                anotherGamesButton.setBackground(new Color(241, 113, 151));
             }
         });
 
@@ -177,22 +198,21 @@ public class ResultPanel extends JPanel {
         rightPanel.add(anotherGamesButton, rightGbc);
 
         // RESTART 버튼
-        restartButton = new JButton("RESTART \u2192");
+        restartButton = new RoundedButton("RESTART \u2192", 60);
         restartButton.setFont(FontManager.getPressStart2P(16f));
         restartButton.setPreferredSize(new Dimension(380, 65));
-        restartButton.setBackground(new Color(220, 20, 60)); // 빨간색
+        restartButton.setBackground(new Color(241, 113, 151));
         restartButton.setForeground(Color.WHITE);
-        restartButton.setFocusPainted(false);
-        restartButton.setBorderPainted(false);
         restartButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
+        // Hover 이벤트
         restartButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                restartButton.setBackground(new Color(250, 50, 90));
+                restartButton.setBackground(new Color(241, 113, 151)); // 밝게
             }
 
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                restartButton.setBackground(new Color(220, 20, 60));
+                restartButton.setBackground(new Color(241, 113, 151)); // 원래색
             }
         });
 
@@ -215,49 +235,84 @@ public class ResultPanel extends JPanel {
         winnerNameLabel.setText(winner.getName());
 
         // 결과 텍스트 설정 (요구사항: "1th ~~의 ~~~")
-        resultTextLabel.setText("<html><center>1st<br>" + categoryName + "의<br>" + winner.getName() + "</center></html>");
+        resultTextLabel.setText("<html><center>1등<br>" + categoryName + "의<br>" + winner.getName() + "</center></html>");
 
         // 이미지 로드
         loadImage(winner.getImagePath());
     }
 
     /**
-     * 이미지를 로드합니다.
+     * 이미지를 로드하고 500x480으로 크롭합니다.
      */
     private void loadImage(String imagePath) {
         try {
-            // 1. DB 경로의 맨 앞 '/'를 제거하여 'images/...' 형태로 만듦
-            String cleanPath = (imagePath != null && imagePath.startsWith("/"))
-                    ? imagePath.substring(1)
-                    : imagePath;
+            // 경로 정리 (맨 앞의 / 제거)
+            String cleanPath = imagePath.startsWith("/") ? imagePath.substring(1) : imagePath;
 
-            // 2. 클래스패스 기준으로 로드하기 위해 다시 맨 앞에 '/'를 붙여 URL로 가져옴
-            java.net.URL imageUrl = getClass().getResource("/" + cleanPath);
+            System.out.println("🖼️  이미지 로드 시도: " + cleanPath);
+
+            // 리소스에서 이미지 로드 시도
+            java.net.URL imageUrl = getClass().getClassLoader().getResource(cleanPath);
 
             if (imageUrl != null) {
-                ImageIcon icon = new ImageIcon(imageUrl);
+                BufferedImage originalImg = ImageIO.read(imageUrl);
 
-                if (icon.getIconWidth() > 0) {
-                    Image scaledImage = icon.getImage().getScaledInstance(400, 400, Image.SCALE_SMOOTH);
+                if (originalImg != null && originalImg.getWidth() > 0 && originalImg.getHeight() > 0) {
+                    // 타겟 크기
+                    int targetWidth = 500;
+                    int targetHeight = 480;
+
+                    // 원본 이미지의 비율 계산
+                    double imgRatio = (double) originalImg.getWidth() / originalImg.getHeight();
+                    double targetRatio = (double) targetWidth / targetHeight;
+
+                    int cropWidth, cropHeight;
+
+                    // 이미지를 크롭할 크기 결정 (중앙에서 잘라내기)
+                    if (imgRatio > targetRatio) {
+                        // 이미지가 더 넓음 - 높이를 기준으로 폭을 자름
+                        cropHeight = originalImg.getHeight();
+                        cropWidth = (int) (cropHeight * targetRatio);
+                    } else {
+                        // 이미지가 더 높음 - 폭을 기준으로 높이를 자름
+                        cropWidth = originalImg.getWidth();
+                        cropHeight = (int) (cropWidth / targetRatio);
+                    }
+
+                    // 중앙에서 크롭
+                    int x = (originalImg.getWidth() - cropWidth) / 2;
+                    int y = (originalImg.getHeight() - cropHeight) / 2;
+
+                    BufferedImage croppedImg = originalImg.getSubimage(x, y, cropWidth, cropHeight);
+
+                    // 타겟 크기로 스케일링
+                    Image scaledImage = croppedImg.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+
                     winnerImageLabel.setIcon(new ImageIcon(scaledImage));
                     winnerImageLabel.setText("");
+                    System.out.println("✅ 이미지 로드 성공");
                 } else {
-                    winnerImageLabel.setIcon(null);
-                    winnerImageLabel.setText("이미지 없음");
-                    winnerImageLabel.setFont(FontManager.getDungGeunMo(16f));
+                    setImageNotFound("이미지 크기 0");
                 }
             } else {
-                // URL이 null인 경우
-                winnerImageLabel.setIcon(null);
-                winnerImageLabel.setText("이미지 경로 오류");
-                winnerImageLabel.setFont(FontManager.getDungGeunMo(16f));
+                setImageNotFound("리소스를 찾을 수 없음: " + cleanPath);
             }
+
         } catch (Exception e) {
-            winnerImageLabel.setIcon(null);
-            winnerImageLabel.setText("이미지 로드 오류");
-            winnerImageLabel.setFont(FontManager.getDungGeunMo(16f));
-            e.printStackTrace(); // 디버깅을 위해 추가
+            setImageNotFound(e.getMessage());
+            e.printStackTrace();
         }
+    }
+
+    /**
+     * 이미지를 찾을 수 없을 때 표시
+     */
+    private void setImageNotFound(String reason) {
+        winnerImageLabel.setIcon(null);
+        winnerImageLabel.setText("<html><center>이미지 없음</center></html>");
+        winnerImageLabel.setFont(FontManager.getDungGeunMo(14f));
+        winnerImageLabel.setForeground(new Color(150, 150, 150));
+        System.err.println("❌ 이미지 로드 실패: " + reason);
     }
 
     /**
@@ -281,4 +336,98 @@ public class ResultPanel extends JPanel {
     public void setBackButtonListener(Runnable listener) {
         this.backButtonListener = listener;
     }
+
+    // ---------------------------------------------------
+// 둥근 모서리 버튼 클래스
+// ---------------------------------------------------
+    public class RoundedButton extends JButton {
+
+        private int radius;
+
+        public RoundedButton(String text, int radius) {
+            super(text);
+            this.radius = radius;
+            setOpaque(false);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setContentAreaFilled(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // 배경색으로 둥근 사각형 칠하기
+            g2.setColor(getBackground());
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+
+            // 텍스트/아이콘 그리기
+            super.paintComponent(g2);
+
+            g2.dispose();
+        }
+    }
+
+    public class RoundedLabel extends JLabel {
+
+        private int cornerRadius = 30;   // 둥근 정도
+        private Color borderColor = new Color(255, 215, 0); // 금색
+        private int borderThickness = 5;
+
+        public RoundedLabel() {
+            super();
+            setOpaque(false); // 직접 배경을 그릴 때는 false 유지
+        }
+
+        public void setCornerRadius(int radius) {
+            this.cornerRadius = radius;
+            repaint();
+        }
+
+        public void setBorderColor(Color color) {
+            this.borderColor = color;
+            repaint();
+        }
+
+        public void setBorderThickness(int thickness) {
+            this.borderThickness = thickness;
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // 아이콘이 있을 경우 둥근 모서리로 클리핑
+            if (getIcon() != null && getIcon() instanceof ImageIcon) {
+                ImageIcon icon = (ImageIcon) getIcon();
+                Image img = icon.getImage();
+
+                // 둥근 사각형으로 클리핑
+                g2.setClip(new java.awt.geom.RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius));
+                g2.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+
+                // 테두리
+                if (borderThickness > 0) {
+                    g2.setClip(null); // 클립 제거
+                    g2.setColor(borderColor);
+                    g2.setStroke(new BasicStroke(borderThickness));
+                    g2.drawRoundRect(borderThickness / 2, borderThickness / 2,
+                            getWidth() - borderThickness, getHeight() - borderThickness,
+                            cornerRadius, cornerRadius);
+                }
+            } else {
+                // 아이콘이 없을 경우 기본 텍스트 표시
+                super.paintComponent(g);
+            }
+
+            g2.dispose();
+        }
+    }
 }
+
+// test123

@@ -26,6 +26,7 @@ public class BattlePanel extends JPanel {
     private JLabel rightImageLabel;
     private JLabel leftNameLabel;
     private JLabel rightNameLabel;
+    private JLabel vsLabel;
     private Consumer<Contestant> winnerSelectListener;
     private Contestant leftContestant;
     private Contestant rightContestant;
@@ -138,7 +139,7 @@ public class BattlePanel extends JPanel {
         battlePanel.add(leftContestantPanel, gbc);
 
         // VS 텍스트
-        JLabel vsLabel = new JLabel("VS");
+        vsLabel = new JLabel("VS");
         vsLabel.setFont(FontManager.getPressStart2P(Font.BOLD, 48f));
         vsLabel.setForeground(PINK_COLOR); // #F17197
         gbc.gridx = 1;
@@ -194,7 +195,27 @@ public class BattlePanel extends JPanel {
                 if (winnerSelectListener != null) {
                     Contestant winner = isLeft ? leftContestant : rightContestant;
                     if (winner != null) {
-                        winnerSelectListener.accept(winner);
+                        // 클릭 이펙트: 선택된 쪽에 테두리, 선택되지 않은 쪽을 어둡게
+                        if (isLeft) {
+                            if (leftImageLabel instanceof RoundedImageLabel) {
+                                ((RoundedImageLabel) leftImageLabel).setSelected(true);
+                            }
+                            applyDimEffect(rightImageLabel, rightNameLabel, rightContestantPanel);
+                            vsLabel.setForeground(new Color(100, 100, 100)); // VS도 어둡게
+                        } else {
+                            if (rightImageLabel instanceof RoundedImageLabel) {
+                                ((RoundedImageLabel) rightImageLabel).setSelected(true);
+                            }
+                            applyDimEffect(leftImageLabel, leftNameLabel, leftContestantPanel);
+                            vsLabel.setForeground(new Color(100, 100, 100)); // VS도 어둡게
+                        }
+
+                        // 약간의 지연 후 다음 화면으로
+                        Timer timer = new Timer(500, evt -> {
+                            winnerSelectListener.accept(winner);
+                        });
+                        timer.setRepeats(false);
+                        timer.start();
                     }
                 }
             }
@@ -222,6 +243,19 @@ public class BattlePanel extends JPanel {
         // 라운드 정보 설정
         roundInfoLabel.setText(roundName);
         matchCountLabel.setText(matchInfo);
+
+        // dimmed & selected 상태 리셋
+        if (leftImageLabel instanceof RoundedImageLabel) {
+            ((RoundedImageLabel) leftImageLabel).setDimmed(false);
+            ((RoundedImageLabel) leftImageLabel).setSelected(false);
+        }
+        if (rightImageLabel instanceof RoundedImageLabel) {
+            ((RoundedImageLabel) rightImageLabel).setDimmed(false);
+            ((RoundedImageLabel) rightImageLabel).setSelected(false);
+        }
+        leftNameLabel.setForeground(PINK_COLOR);
+        rightNameLabel.setForeground(PINK_COLOR);
+        vsLabel.setForeground(PINK_COLOR); // VS 색상도 리셋
 
         // 왼쪽 대상 설정
         leftNameLabel.setText(left.getName());
@@ -325,14 +359,40 @@ public class BattlePanel extends JPanel {
     }
 
     /**
+     * 선택되지 않은 이미지와 이름을 어둡게 만드는 이펙트
+     */
+    private void applyDimEffect(JLabel imageLabel, JLabel nameLabel, JPanel panel) {
+        // 이미지를 거의 완전히 어둡게
+        if (imageLabel instanceof RoundedImageLabel) {
+            ((RoundedImageLabel) imageLabel).setDimmed(true);
+        }
+
+        // 이름을 거의 보이지 않게
+        nameLabel.setForeground(new Color(100, 100, 100));
+    }
+
+    /**
      * 둥근 모서리를 가진 이미지 레이블
      */
     private static class RoundedImageLabel extends JLabel {
         private int cornerRadius;
+        private boolean isDimmed = false;
+        private boolean isSelected = false;
+        private static final Color PINK_COLOR = new Color(241, 113, 151); // #F17197
 
         public RoundedImageLabel(int cornerRadius) {
             this.cornerRadius = cornerRadius;
             setOpaque(false);
+        }
+
+        public void setDimmed(boolean dimmed) {
+            this.isDimmed = dimmed;
+            repaint();
+        }
+
+        public void setSelected(boolean selected) {
+            this.isSelected = selected;
+            repaint();
         }
 
         @Override
@@ -348,6 +408,20 @@ public class BattlePanel extends JPanel {
                 // 둥근 사각형으로 클리핑
                 g2.setClip(new java.awt.geom.RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius));
                 g2.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+
+                // dimmed 상태일 경우 거의 완전히 어두운 오버레이
+                if (isDimmed) {
+                    g2.setColor(new Color(0, 0, 0, 250)); // 거의 완전히 검정
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius);
+                }
+
+                // selected 상태일 경우 두꺼운 핑크 테두리
+                if (isSelected) {
+                    g2.setClip(null); // 클립 제거
+                    g2.setColor(PINK_COLOR);
+                    g2.setStroke(new BasicStroke(12)); // 12px 두께
+                    g2.drawRoundRect(6, 6, getWidth() - 12, getHeight() - 12, cornerRadius, cornerRadius);
+                }
             } else {
                 // 아이콘이 없을 경우 기본 텍스트 표시
                 super.paintComponent(g);
